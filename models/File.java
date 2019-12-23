@@ -20,13 +20,17 @@ public class File {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long fileId;
-	private String path;
 	private String fileName;
-	private Long employeeId;
-
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private User user;
+	private String objectName;
+	private String careerName;
+	private String distance;
+	private String roadType;
+	private String cargoType;
 	@CreationTimestamp
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date date;
-
 
 }

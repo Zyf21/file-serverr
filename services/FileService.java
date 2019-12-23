@@ -4,6 +4,7 @@ import file.server.error.ErrorCodes;
 import file.server.error.RestException;
 import file.server.models.File;
 import file.server.models.FileHolder;
+import file.server.models.User;
 import file.server.repositories.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,8 +29,16 @@ public class FileService {
 	@Value("${files.storage-path}")
 	private String storagePath;
 
+	public File addFile (File file){
 
-	public Long storeFile(MultipartFile file, Long employeeId) {
+		if (fileRepository.existsById(file.getFileId())) {
+			throw  new RestException(ErrorCodes.FILE_ALREADY_EXISTS);
+		}
+		fileRepository.save(file);
+		return file;
+	}
+
+	public Long storeFile(MultipartFile file) {
 		// Normalize file name
 		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 
@@ -39,11 +48,10 @@ public class FileService {
 				throw new RestException(ErrorCodes.FILE_NAME_IS_INVALID);
 			}
 
-			String filePath = storagePath + "/" + org.apache.commons.codec.digest.DigestUtils.sha256Hex(fileName+new Timestamp(System.currentTimeMillis()));
+			//String filePath = storagePath + "/" + org.apache.commons.codec.digest.DigestUtils.sha256Hex(fileName+new Timestamp(System.currentTimeMillis()));
+			String filePath = storagePath + "/" + fileName;
 			File dbFile = File.builder()
 					.fileName(fileName)
-					.employeeId(employeeId)
-					.path(filePath)
 					.build();
 
 			Files.write(Paths.get(filePath), file.getBytes());
@@ -53,11 +61,11 @@ public class FileService {
 		}
 	}
 
-	public FileHolder getFile(Long fileId) throws IOException {
+	public FileHolder getFileById(Long fileId) throws IOException {
 
 		File file = fileRepository.findById(fileId)
 				.orElseThrow(() -> new RestException(ErrorCodes.FILE_NOT_FOUND));
-		byte[] bytes = Files.readAllBytes(Paths.get(file.getPath()));
+		byte[] bytes = Files.readAllBytes(Paths.get(storagePath + "/" + file.getFileName()));
 
 		return new FileHolder(file.getFileName(), bytes);
 
