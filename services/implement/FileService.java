@@ -1,4 +1,4 @@
-package file.server.services;
+package file.server.services.implement;
 
 import file.server.error.ErrorCodes;
 import file.server.error.RestException;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -36,6 +37,11 @@ public class FileService {
 		}
 		fileRepository.save(file);
 		return file;
+	}
+
+	public File getFileById (@NotNull Long fileId){
+		return fileRepository.findById(fileId).
+				orElseThrow(() -> new RestException(ErrorCodes.FILE_NOT_FOUND));
 	}
 
 	public Long storeFile(MultipartFile file) {
@@ -61,12 +67,11 @@ public class FileService {
 		}
 	}
 
-	public FileHolder getFileById(Long fileId) throws IOException {
+	public FileHolder downloadFileById(Long fileId) throws IOException {
 
 		File file = fileRepository.findById(fileId)
 				.orElseThrow(() -> new RestException(ErrorCodes.FILE_NOT_FOUND));
 		byte[] bytes = Files.readAllBytes(Paths.get(storagePath + "/" + file.getFileName()));
-
 		return new FileHolder(file.getFileName(), bytes);
 
 	}

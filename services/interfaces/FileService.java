@@ -7,4 +7,6 @@ import javax.validation.constraints.NotNull;
 public interface FileService {
 
 	File addFile(@NotNull File file);
+
+	File getFileById(@NotNull File file);
 }

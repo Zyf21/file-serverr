@@ -2,7 +2,7 @@ package file.server.controllers;
 
 import file.server.models.File;
 import file.server.models.FileHolder;
-import file.server.services.FileService;
+import file.server.services.implement.FileService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -25,6 +25,12 @@ public class FileController {
 		log.debug("addFile: site = {}", file);
 		return fileService.addFile(file);
 	}
+	@GetMapping("/{id}")
+	public File getFileById(@RequestBody Long fileId){
+		log.debug("getFileById: site = {}", fileId);
+		return fileService.getFileById(fileId);
+
+	}
 
 	@PostMapping("/uploadFile")
 	public Long uploadFile(@RequestParam("file") MultipartFile file)  {
@@ -34,8 +40,7 @@ public class FileController {
 	@GetMapping("/downloadFile/{fileId}")
 	public ResponseEntity<byte[]> downloadFile(@PathVariable Long fileId) throws IOException {
 		// Load file from database
-		FileHolder file = fileService.getFileById(fileId);
-
+		FileHolder file = fileService.downloadFileById(fileId);
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""
 						+ file.getFileName())
