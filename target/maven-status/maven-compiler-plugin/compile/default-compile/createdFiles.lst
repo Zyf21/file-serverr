@@ -1,8 +1,12 @@
 file/server/error/ErrorCodes.class
 file/server/models/Driver.class
+file/server/services/implement/YouTube.class
 file/server/models/User$UserBuilder.class
+file/server/models/Video.class
 file/server/services/interfaces/FileService.class
 file/server/models/User.class
+file/server/models/Video$VideoBuilder.class
+file/server/models/Video$Item.class
 file/server/services/implement/FileService.class
 file/server/models/FileHolder.class
 file/server/config/SecurityConfig.class
