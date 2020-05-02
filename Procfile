@@ -1,2 +1,2 @@
 
-web: java -cp target/classes/:target/dependency/*
+web: java -cp target/classes/file/server Application.class
