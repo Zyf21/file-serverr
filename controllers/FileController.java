@@ -25,8 +25,8 @@ public class FileController {
 		log.debug("addFile: site = {}", file);
 		return fileService.addFile(file);
 	}
-	@GetMapping("/{id}")
-	public File getFileById(@RequestBody Long fileId){
+	@GetMapping("/{fileId}")
+	public File getFileById(@PathVariable Long fileId){
 		log.debug("getFileById: site = {}", fileId);
 		return fileService.getFileById(fileId);
 
