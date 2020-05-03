@@ -1,10 +1,9 @@
-package file.server.services.implement;
+package file.server.services;
 
 import file.server.error.ErrorCodes;
 import file.server.error.RestException;
 import file.server.models.File;
 import file.server.models.FileHolder;
-import file.server.models.User;
 import file.server.repositories.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -30,21 +28,8 @@ public class FileService {
 	@Value("${files.storage-path}")
 	private String storagePath;
 
-	public File addFile (File file){
 
-		if (fileRepository.existsById(file.getFileId())) {
-			throw  new RestException(ErrorCodes.FILE_ALREADY_EXISTS);
-		}
-		fileRepository.save(file);
-		return file;
-	}
-
-	public File getFileById (@NotNull Long fileId){
-		return fileRepository.findById(fileId).
-				orElseThrow(() -> new RestException(ErrorCodes.FILE_NOT_FOUND));
-	}
-
-	public Long storeFile(MultipartFile file) {
+	public Long storeFile(MultipartFile file, Long employeeId) {
 		// Normalize file name
 		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
 
@@ -54,10 +39,11 @@ public class FileService {
 				throw new RestException(ErrorCodes.FILE_NAME_IS_INVALID);
 			}
 
-			//String filePath = storagePath + "/" + org.apache.commons.codec.digest.DigestUtils.sha256Hex(fileName+new Timestamp(System.currentTimeMillis()));
-			String filePath = storagePath + "/" + fileName;
+			String filePath = storagePath + "/" + org.apache.commons.codec.digest.DigestUtils.sha256Hex(fileName+new Timestamp(System.currentTimeMillis()));
 			File dbFile = File.builder()
 					.fileName(fileName)
+					.employeeId(employeeId)
+					.path(filePath)
 					.build();
 
 			Files.write(Paths.get(filePath), file.getBytes());
@@ -67,11 +53,12 @@ public class FileService {
 		}
 	}
 
-	public FileHolder downloadFileById(Long fileId) throws IOException {
+	public FileHolder getFile(Long fileId) throws IOException {
 
 		File file = fileRepository.findById(fileId)
 				.orElseThrow(() -> new RestException(ErrorCodes.FILE_NOT_FOUND));
-		byte[] bytes = Files.readAllBytes(Paths.get(storagePath + "/" + file.getFileName()));
+		byte[] bytes = Files.readAllBytes(Paths.get(file.getPath()));
+
 		return new FileHolder(file.getFileName(), bytes);
 
 	}

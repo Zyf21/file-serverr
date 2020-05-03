@@ -1,9 +1,7 @@
 package file.server.controllers;
 
-import file.server.models.File;
 import file.server.models.FileHolder;
-import file.server.services.implement.FileService;
-import lombok.extern.log4j.Log4j2;
+import file.server.services.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -13,43 +11,21 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/files")
-@Log4j2
 public class FileController {
 
 	@Autowired
-	private FileService fileService;
-
-	class ThisWillActuallyRun {
-
-		@RequestMapping("/")
-		String home() {
-			return "Hello, World!";
-		}
-
-	}
-
-	@PostMapping
-	public File addFile (@RequestBody File file){
-		log.debug("addFile: site = {}", file);
-		return fileService.addFile(file);
-	}
-	@GetMapping("/{fileId}")
-	public File getFileById(@PathVariable Long fileId){
-		log.debug("getFileById: site = {}", fileId);
-		return fileService.getFileById(fileId);
-
-	}
+	private file.server.services.FileService FileService;
 
 	@PostMapping("/uploadFile")
-	public Long uploadFile(@RequestParam("file") MultipartFile file)  {
-		return fileService.storeFile(file);
+	public Long uploadFile(@RequestParam("file") MultipartFile file, @RequestParam Long employeeId)  {
+		return FileService.storeFile(file,employeeId);
 	}
 
 	@GetMapping("/downloadFile/{fileId}")
 	public ResponseEntity<byte[]> downloadFile(@PathVariable Long fileId) throws IOException {
 		// Load file from database
-		FileHolder file = fileService.downloadFileById(fileId);
+		FileHolder file = FileService.getFile(fileId);
+
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""
 						+ file.getFileName())
