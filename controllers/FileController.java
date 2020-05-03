@@ -20,6 +20,15 @@ public class FileController {
 	@Autowired
 	private FileService fileService;
 
+	class ThisWillActuallyRun {
+
+		@RequestMapping("/")
+		String home() {
+			return "Hello, World!";
+		}
+
+	}
+
 	@PostMapping
 	public File addFile (@RequestBody File file){
 		log.debug("addFile: site = {}", file);
